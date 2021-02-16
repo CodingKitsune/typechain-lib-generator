@@ -1,7 +1,7 @@
 {
   "name": "typechain-lib-generator",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generates a small lib to be used across projects using Typechain",
   "engines": {
     "node": ">=12.0.0"
@@ -30,19 +30,21 @@
     "lint:typecheck": "tsc --noEmit",
     "precommit-check": "lint-staged",
     "postinstall": "husky install",
-    "prepublishOnly": "yarn lint && yarn build"
+    "prepublishOnly": "pinst --disable && yarn lint && yarn build",
+    "postpublish": "pinst --enable"
   },
   "devDependencies": {
     "@types/node": "^14.14.28",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
+    "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-config-problems": "^5.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
-    "eslint": "^7.20.0",
     "husky": "^5.0.9",
     "lint-staged": "^10.5.4",
+    "pinst": "^2.1.4",
     "prettier": "^2.2.1",
     "typescript": "^4.1.5"
   }
