@@ -44,6 +44,8 @@ for (const target of targets) {
     rmdirSync(target, { recursive: true });
   }
   mkdirSync(target, { recursive: true });
+  mkdirSync(resolve(target, 'types'), { recursive: true });
+  mkdirSync(resolve(target, 'data'), { recursive: true });
 }
 
 const jsonList = readdirSync(truffleCompileOutDir);
@@ -54,21 +56,20 @@ for (const jsonFile of jsonList) {
   abiFileContents += `export const ${contractName}Abi = ${JSON.stringify(contents.abi, undefined, 2)};\n`;
 }
 
-const typingFiles = readdirSync(typechainOutDir).filter(f => f.endsWith('.d.ts') && !['index.d.ts'].includes(f));
+const typingFiles = readdirSync(typechainOutDir).filter(f => f.endsWith('.d.ts'));
 
-abiFileContents += `\n`;
 for (const typingFile of typingFiles) {
-  const moduleName = basename(typingFile, '.d.ts');
   for (const target of targets) {
-    copyFileSync(resolve(typechainOutDir, typingFile), resolve(target, `${moduleName}.ts`));
+    copyFileSync(resolve(typechainOutDir, typingFile), resolve(target, 'types', typingFile));
   }
-  abiFileContents += `export * as ${moduleName}ContractTypes from "./${moduleName}";\n\n`;
 }
-abiFileContents += `\n`;
 
-const contractMapFileSrc = `export const ContractAddresses = ${JSON.stringify(contractMap, undefined, 2)};\n`;
+let contractMapFileSrc = '';
+Object.entries(contractMap).forEach(([contractName, address]) => {
+  contractMapFileSrc += `export const ${contractName}Address = '${address}';\n`;
+});
 
 for (const target of targets) {
-  writeFileSync(resolve(target, 'index.ts'), abiFileContents);
-  writeFileSync(resolve(target, 'ContractAddresses.ts'), contractMapFileSrc);
+  writeFileSync(resolve(target, 'data', 'ContractAbis.ts'), abiFileContents);
+  writeFileSync(resolve(target, 'data', 'ContractAddresses.ts'), contractMapFileSrc);
 }
