@@ -49,11 +49,13 @@ for (const target of targets) {
 }
 
 const jsonList = readdirSync(truffleCompileOutDir);
-let abiFileContents = '';
 for (const jsonFile of jsonList) {
   const contents = require(resolve(truffleCompileOutDir, jsonFile));
   const contractName = basename(jsonFile, '.json');
-  abiFileContents += `export const ${contractName}Abi = ${JSON.stringify(contents.abi, undefined, 2)};\n`;
+  const abiFileContents = `export const ${contractName}Abi = ${JSON.stringify(contents.abi, undefined, 2)};\n`;
+  for (const target of targets) {
+    writeFileSync(resolve(target, 'data', `${contractName}Abi.ts`), abiFileContents);
+  }
 }
 
 const typingFiles = readdirSync(typechainOutDir).filter(f => f.endsWith('.d.ts'));
@@ -70,6 +72,5 @@ Object.entries(contractMap).forEach(([contractName, address]) => {
 });
 
 for (const target of targets) {
-  writeFileSync(resolve(target, 'data', 'ContractAbis.ts'), abiFileContents);
   writeFileSync(resolve(target, 'data', 'ContractAddresses.ts'), contractMapFileSrc);
 }
